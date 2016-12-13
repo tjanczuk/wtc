@@ -1,8 +1,10 @@
 module.exports = (options, cb) => {
     return cb(null, (ctx, req, res) => {
-        for (var h in options.secrets) {
-            res.headers[h] = options.secrets[h];
+        if (req.method !== 'GET') {
+            res.writeHead(405);
+            return res.end();
         }
+        res.writeHead(200, options.secrets);
         res.end(options.script);
     });
 };
