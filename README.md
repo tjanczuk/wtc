@@ -1,6 +1,6 @@
 # Webtask Compilers
 
-A collection of useful [webtask compilers](https://webtask.io/docs/webtask-compilers) for use with [Auth0 Webatsks](https://webtask.io). 
+A collection of useful [webtask compilers](https://webtask.io/docs/webtask-compilers) for use with [Auth0 Webtasks](https://webtask.io). 
 
 All you need to use the features below is [the webtask CLI](https://webtask.io/cli). 
 
