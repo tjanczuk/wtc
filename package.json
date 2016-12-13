@@ -1,0 +1,25 @@
+{
+  "name": "wtc",
+  "version": "1.0.0",
+  "description": "Webtask Compilers for https://webtask.io",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjanczuk/wtc.git"
+  },
+  "keywords": [
+    "webtask",
+    "serverless",
+    "node.js",
+    "auth0"
+  ],
+  "author": "Tomasz Janczuk (tomasz@janczuk.org)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjanczuk/wtc/issues"
+  },
+  "homepage": "https://github.com/tjanczuk/wtc#readme"
+}
