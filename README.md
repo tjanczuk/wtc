@@ -2,6 +2,8 @@
 
 A collection of useful [webtask compilers](https://webtask.io/docs/webtask-compilers) for use with [Auth0 Webatsks](https://webtask.io). 
 
+All you need to use the features below is [the webtask CLI](https://webtask.io/cli). 
+
 ## Static compiler
 
 Host static content (HTML, JS files, CSS) on webtasks and serve over HTTP GET along with a configurable set of HTTP response headers (e.g. Content-Type). 
