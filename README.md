@@ -87,7 +87,7 @@ module.exports = class MyWebtask {
 EOF
 ```
 
-Create webtask using [class_compiler_context.js](https://github.com/tjanczuk/wtc/blob/master/class_compiler.js) compiler: 
+Create webtask using [class_compiler.js](https://github.com/tjanczuk/wtc/blob/master/class_compiler.js) compiler: 
 
 ```
 wt create webtask.js \
