@@ -49,3 +49,47 @@ wt create webtask.js \
   --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/extend_context.js \
   -s DATA_URL=https://google.com
 ```
+
+## ES6 classes as webtasks
+
+This compiler demonstrates how a JavaScript class can be used as a programming model for webtasks with simple built-in dispatch mechanism: 
+
+* constructor of the class is called once during initialization call and provided with webtask secrets and metadata, 
+* requests are dispatched to instance methods based on the HTTP verb of the request (you can easily modify dispatch logic to determine method to call using other criteria).
+
+Webtask script: 
+
+```
+cat > webtask.js <<EOF
+'use strict';
+
+module.exports = class MyWebtask {
+
+  constructor(secrets, meta) {
+    this.secrets = secrets;
+    this.meta = meta;
+  }
+  
+  get(ctx, cb) {
+    cb(null, { hello: 'from get' });
+  }  
+  
+  post(ctx, cb) {
+    cb(null, { hello: 'from post' });
+  }
+  
+  patch(ctx, cb) {
+    cb(null, { hello: 'from patch' });
+  }
+
+  // if an HTTP verb is not defined, compiler responds with HTTP 405
+};
+EOF
+```
+
+Create webtask using [class_compiler_context.js](https://github.com/tjanczuk/wtc/blob/master/class_compiler.js) compiler: 
+
+```
+wt create webtask.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/class_compiler.js
+```
