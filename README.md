@@ -93,3 +93,63 @@ Create webtask using [class_compiler.js](https://github.com/tjanczuk/wtc/blob/ma
 wt create webtask.js \
   --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/class_compiler.js
 ```
+
+## Mocha test-as-a-service
+
+This compiler allows you to easily implement and configure mocha tests as a webtask, and later run those tests with a simple HTTP call (e.g. via curl).
+
+Webtask script: 
+
+```
+cat > test.js <<EOF
+describe('sanity', () => {
+  it('check', (done) => {
+    done();  
+  })
+});
+EOF
+```
+
+Create webtask using [mocha_compiler.js](https://github.com/tjanczuk/wtc/blob/master/mocha_compiler.js) compiler: 
+
+```
+wt create test.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/mocha_compiler.js
+```
+
+You can then run the tests by simply calling the created webtask: 
+
+![image](https://cloud.githubusercontent.com/assets/822369/24326418/032b12dc-116b-11e7-9407-712ef2116154.png)
+
+You can pass additional parameters to mocha when creating the webtask, e.g: 
+
+```
+wt create test.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/mocha_compiler.js \
+  --meta MOCHA_ARGS="--reporter json"
+```
+
+You can override these parameters with URL query params when calling the webtask, e.g: 
+
+```
+curl https://tjanczuk.run.webtask.io/mocha-webtask?reporter=json\&timeout=2000
+```
+
+You can provide secret parameters to your test code (e.g. API keys) using secrets: 
+
+```
+wt create test.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/mocha_compiler.js \
+  --secret MY_KEY=12
+```
+
+and they are available within your mocha test code with `module.webtask.secrets`: 
+
+```javascript
+describe('sanity', () => {
+  it('check', (done) => {
+    console.log('PSSST, MY_KEY is', module.webtask.secrets.MY_KEY);
+    done();  
+  })
+});
+```
