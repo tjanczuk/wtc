@@ -4,6 +4,12 @@ A collection of useful [webtask compilers](https://webtask.io/docs/webtask-compi
 
 All you need to use the features below is [the webtask CLI](https://webtask.io/cli). 
 
+[Static compiler](#static-compiler)  
+[Webtask context extension](#webtask-context-extension)  
+[ES6 classes as webtasks](#es6-classes-as-webtasks)  
+[Mocha test-as-a-service](#mocha-test-as-a-service)  
+[Stripe webhook](#stripe-webhook)  
+
 ## Static compiler
 
 Host static content (HTML, JS files, CSS) on webtasks and serve over HTTP GET along with a configurable set of HTTP response headers (e.g. Content-Type). 
@@ -156,7 +162,7 @@ describe('sanity', () => {
 
 ## Stripe webhook
 
-This compiler provides a simple way of creating secure [Stripe webhooks](https://stripe.com/docs/webhooks) which supports handling all Stripe events using a convenient programming model.
+This compiler provides a simple way of creating secure [Stripe webhooks](https://stripe.com/docs/webhooks) which support handling all Stripe events using a convenient programming model.
 
 Webtask script: 
 
@@ -208,9 +214,11 @@ You must then configure your webhook in Stripe by specifying the *username:passw
 https://username:password@james.run.webtask.io/stripe-handler
 ```
 
+Unauthorized requests will be rejected with HTTP 403.
+
 #### Secrets
 
-You can provide your webhook code with secrets for communicating with downstream APIs (e.g. Slack or Twilio): 
+You can provide your webhook code with secrets for communicating with external services (e.g. Slack or Twilio): 
 
 ```
 wt create stripe-handler.js \
