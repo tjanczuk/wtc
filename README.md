@@ -153,3 +153,101 @@ describe('sanity', () => {
   })
 });
 ```
+
+## Stripe webhook
+
+This compiler provides a simple way of creating secure [Stripe webhooks](https://stripe.com/docs/webhooks) which supports handling all Stripe events using a convenient programming model.
+
+Webtask script: 
+
+```
+cat > stripe-handler.js <<EOF
+'use strict';
+module.exports = class StripeHandler {
+  'charge.succeeded'(data) {
+    console.log("You've got money!");
+  }
+};
+EOF
+```
+
+Create webtask using [stripe_compiler.js](https://github.com/tjanczuk/wtc/blob/master/stripe_compiler.js) compiler: 
+
+```
+wt create stripe-handler.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/stripe_compiler.js
+```
+
+You can then take the resulting URL and use it as a webhook that receives the *charge.succeeded* event from Stripe. 
+
+#### Other Stripe events
+
+All Stripe events are supported with a simple programming model. Use the [stripe_handler.js](https://github.com/tjanczuk/wtc/blob/master/stripe_handler.js) as a template of your webtask and uncomment any events you wish to handle. The webtask will respond with HTTP 501 to any events received from Stripe that your code does not implement. 
+
+```
+wt create https://raw.githubusercontent.com/tjanczuk/wtc/master/stripe_handler.js \
+  --name stripe-handler \
+  --capture \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/stripe_compiler.js
+wt edit stripe-handler
+```
+
+#### Authentication
+
+The compiler can optionally enforce Basic authentication supported by Stripe. To set it up, specify the *username:password* pair as the *BASIC_AUTH* secret when creating your webtask: 
+
+```
+wt create stripe-handler.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/stripe_compiler.js \
+  --secret BASIC_AUTH=username:password
+```
+
+You must then configure your webhook in Stripe by specifying the *username:password* credentials in the webhook URL itself, e.g. 
+
+```
+https://username:password@james.run.webtask.io/stripe-handler
+```
+
+#### Secrets
+
+You can provide your webhook code with secrets for communicating with downstream APIs (e.g. Slack or Twilio): 
+
+```
+wt create stripe-handler.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/stripe_compiler.js \
+  --secret TWILIO_KEY=abc \
+  --secret SLACK_URL=https://...
+```
+
+These secrets can be accessed within the webhook code in the following way:
+
+```javascript
+'use strict';
+module.exports = class StripeHandler {
+  'charge.succeeded'(data) {
+    let twilio_key = this.secrets.TWILIO_KEY;
+    let slack_url = this.secrets.SLACK_URL;
+  }
+};
+```
+
+#### Calling Stripe APIs
+
+If you specify the *STRIPE_KEY* as one of the secrets when creating your webtask:
+
+```
+wt create stripe-handler.js \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/stripe_compiler.js \
+  --secret STRIPE_KEY=abc
+```
+
+the compiler will provide you with a preconfigured [Stripe client](https://www.npmjs.com/package/stripe) you can use to all Stripe APIs: 
+
+```javascript
+'use strict';
+module.exports = class StripeHandler {
+  'charge.succeeded'(data) {
+    this.stripe.customers.create(...);
+  }
+};
+```
