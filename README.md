@@ -9,6 +9,7 @@ All you need to use the features below is [the webtask CLI](https://webtask.io/c
 [ES6 classes as webtasks](#es6-classes-as-webtasks)  
 [Mocha test-as-a-service](#mocha-test-as-a-service)  
 [Stripe webhook](#stripe-webhook)  
+[Sequence diagram](#sequence-diagram)  
 
 ## Static compiler
 
@@ -259,3 +260,35 @@ module.exports = class StripeHandler {
   }
 };
 ```
+
+## Sequence diagram
+
+This compiler enables you to easily create HTTP endpoints that display sequence diagrams defined as webtasks using the DSL defined by [bramp/js-sequence-diagrams](https://github.com/bramp/js-sequence-diagrams). 
+
+![image](https://user-images.githubusercontent.com/822369/31043633-6d91867c-a574-11e7-973c-0dc18d6eb177.png)
+
+![image](https://user-images.githubusercontent.com/822369/31043636-771c7f80-a574-11e7-9d8b-e4a30d817916.png)
+
+Webtask script: 
+
+```
+cat > diagram.txt <<EOF
+Caller->Auth0: First, you get an access token
+Note over Auth0: Authenticate and\nauthorize caller
+Auth0->Caller: {access_token}
+Caller->API: Then, you call the API {access_token, data}
+API->Caller: {result}
+EOF
+```
+
+Create webtask using [sequence diagram compiler](https://github.com/tjanczuk/wtc/blob/master/sequence_diagram_compiler.js):
+
+```
+wt create diagram.txt --name diagram \
+  --meta wt-compiler=https://raw.githubusercontent.com/tjanczuk/wtc/master/sequence_diagram_compiler.js \
+  --meta wt-editor-linter=disabled
+```
+
+The webtask URL can be customized with the `theme` URL query parameter, which accepts two values: `simple` (default) or `hand`. The `hand` theme creates a handwritten styled diagram: 
+
+![image](https://user-images.githubusercontent.com/822369/31043694-51672f96-a575-11e7-84bf-b1fc75825be9.png)
