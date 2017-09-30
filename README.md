@@ -263,7 +263,7 @@ module.exports = class StripeHandler {
 
 ## Sequence diagram
 
-This compiler enables you to easily create HTTP endpoints that display sequence diagrams defined as webtasks using the DSL defined by [bramp/js-sequence-diagrams](https://github.com/bramp/js-sequence-diagrams). 
+This compiler enables you to create HTTP endpoints that serve HTML showing sequence diagrams. They are implemented as webtasks using the DSL defined by [bramp/js-sequence-diagrams](https://github.com/bramp/js-sequence-diagrams). 
 
 ![image](https://user-images.githubusercontent.com/822369/31043633-6d91867c-a574-11e7-973c-0dc18d6eb177.png)
 
