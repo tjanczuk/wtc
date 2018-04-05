@@ -6,25 +6,19 @@ const Async = require('async');
 const Superagent = require('superagent');
 const Url = require('url');
 
-const twitter = module.webtask 
-  ? new Twitter({
-    consumer_key: module.webtask.secrets.TWITTER_CONSUMER_KEY,
-    consumer_secret: module.webtask.secrets.TWITTER_CONSUMER_SECRET,
-    access_token_key: module.webtask.secrets.TWITTER_ACCESS_TOKEN_KEY,
-    access_token_secret: module.webtask.secrets.TWITTER_ACCESS_TOKEN_SECRET
-  })
-  : new Twitter({
-    consumer_key: process.env.TWITTER_CONSUMER_KEY,
-    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-    access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-    access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-  });
-
+let twitter;
 let schedule;
 let scheduleError;
 
 module.exports = (options, cb) => {
   
+    twitter = new Twitter({
+      consumer_key: options.secrets.TWITTER_CONSUMER_KEY,
+      consumer_secret: options.secrets.TWITTER_CONSUMER_SECRET,
+      access_token_key: options.secrets.TWITTER_ACCESS_TOKEN_KEY,
+      access_token_secret: options.secrets.TWITTER_ACCESS_TOKEN_SECRET
+    });
+
     try {
       schedule = Yaml.safeLoad(options.script);
     }
@@ -51,7 +45,7 @@ module.exports = (options, cb) => {
               let tx = createTweetPlan(history, schedule);
               let response = {
                 schedule: scheduleError ? { error: scheduleError.message || scheduleError.toString() } : schedule,
-                wouldBePlan: { planPeriod: tx.planPeriod, plan: tx.plan },
+                plan: { planPeriod: tx.planPeriod, plan: tx.plan },
                 history: history || {},
               };
               return respond(200, response);

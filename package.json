@@ -1,6 +1,6 @@
 {
   "name": "webtask-compiler",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Webtask Compilers for https://webtask.io",
   "main": "index.js",
   "scripts": {
