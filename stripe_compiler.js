@@ -8,7 +8,7 @@ module.exports = (options, cb) => {
       instance.secrets = options.secrets;
       instance.meta = options.meta;
       if (options.secrets.STRIPE_KEY) {
-        instance.stripe = require('stripe@4.14.0')(options.secrets.STRIPE_KEY);
+        instance.stripe = require('stripe')(options.secrets.STRIPE_KEY);
       }
       let auth;
       if (options.secrets.BASIC_AUTH) {
