@@ -10,6 +10,7 @@ All you need to use the features below is [the webtask CLI](https://webtask.io/c
 [Mocha test-as-a-service](#mocha-test-as-a-service)  
 [Stripe webhook](#stripe-webhook)  
 [Sequence diagram](#sequence-diagram)  
+[Twitter scheduler](#twitter-scheduler)  
 
 ## Static compiler
 
@@ -292,3 +293,53 @@ wt create diagram.txt --name diagram \
 The webtask URL can be customized with the `theme` URL query parameter, which accepts two values: `simple` (default) or `hand`. The `hand` theme creates a handwritten styled diagram: 
 
 ![image](https://user-images.githubusercontent.com/822369/31043694-51672f96-a575-11e7-84bf-b1fc75825be9.png)
+
+## Twitter scheduler
+
+This compiler allows you to create a Twitter scheduler which runs as a CRON job on [webtasks](https://webtask.io) and sends out tweets from your account given a schedule specified in YAML. 
+
+The tweeting schedule is first specified in YAML. You control the tweet text, any media you want to attach to it, and you can specify multiple times at which this tweet is to be sent out. This is just an initial version, you will be able to add or modify this schedule later very easily:
+
+```
+cat > buffer.yaml <<EOF
+tweets:
+  - text: "I just installed a free Twitter scheduler that uses @auth0_extend and @webtaskio.\n\nCheck out https://github.com/tjanczuk/wtc#twitter-scheduler\n\n#nodejs #serverless"
+    media: https://tomasz.janczuk.org/assets/images/b_1.jpg
+    schedule: 
+      - 4/8/2018 09:00 PDT
+      - 4/8/2018 15:00 PDT
+  - text: "You can do amazing things with webtask.io!\n\n#nodejs #serverless"
+    media: https://tomasz.janczuk.org/assets/images/b_2.jpg
+    schedule: 
+      - 4/5/2018 12:00 PDT
+EOF
+```
+
+Now create a CRON job that will periodically (every 15 minutes) inspect your schedule and send out any tweets that are due using the [twitter compiler](https://github.com/tjanczuk/wtc/blob/master/twitter_compiler.js):
+
+```bash
+wt cron create buffer.yaml -n buffer \
+  --schedule 15m \
+  --no-auth \
+  -d webtask-compiler \
+  --meta wt-compiler=webtask-compiler/twitter \
+  -s TWITTER_CONSUMER_KEY={YOUR_TWITTER_CONSUMER_KEY} \
+  -s TWITTER_CONSUMER_SECRET={YOUR_TWITTER_CONSUMER_SECRET} \
+  -s TWITTER_ACCESS_TOKEN_KEY={YOUR_TWITTER_ACCESS_TOKEN_KEY} \
+  -s TWITTER_ACCESS_TOKEN_SECRET={YOUR_TWITTER_ACCESS_TOKEN_SECRET}
+```
+
+(You can get your Twitter credentials from [here](https://apps.twitter.com/)). 
+
+And that's it, sit back and watch your tweets being sent out!
+
+If you later want to add new tweets or add or modify scheduled times, you can simply edit the YAML representing your schedule:
+
+```bash
+wt edit buffer
+```
+
+This will open the Webtask Editor allowing you to modify the schedule:
+
+![image](https://user-images.githubusercontent.com/822369/38399064-e2e9eee8-38fc-11e8-9e17-7c03dd736e9c.png)
+
