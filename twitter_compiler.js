@@ -88,6 +88,9 @@ function processSchedule(context, cb) {
   }
   
   function executePlan(tx, cb) {
+
+    let now_str = new Date(tx.now).toString();
+
     return Async.eachLimit(tx.plan, 2, (i, cb) => {
       return Async.waterfall([
         (cb) => uploadMedia(i, cb),
@@ -159,7 +162,12 @@ function processSchedule(context, cb) {
         twitter.post('statuses/update', payload, (e, tweet) => {
           i.result = e 
             ? { error: e.message || e.toString() } 
-            : { success: true, tweet_id: tweet && tweet.id };
+            : { 
+              success: true, 
+              tweet_id: tweet.id_str, 
+              url: `https://twitter.com/${tweet.user && tweet.user.screen_name}/status/${tweet.id_str}`,
+              time: now_str,
+            };
           tx.history.recentTweets.unshift(i);
           return cb();
         });
