@@ -95,7 +95,18 @@ function processSchedule(context, cb) {
       return Async.waterfall([
         (cb) => uploadMedia(i, cb),
         (media, cb) => postStatus(media, i, cb)
-      ], cb);
+      ], (e, tweet) => {
+        i.result = e 
+          ? { error: e.message || e.toString() } 
+          : { 
+            success: true, 
+            tweet_id: tweet.id_str, 
+            url: `https://twitter.com/${tweet.user && tweet.user.screen_name}/status/${tweet.id_str}`,
+            time: now_str,
+          };
+        tx.history.recentTweets.unshift(i);
+        return cb();
+      });
       
       function uploadMedia(i, cb) {
         if (!i.media) return cb(null, null);
@@ -110,13 +121,12 @@ function processSchedule(context, cb) {
           function downloadMedia(url, cb) {
             return Superagent
               .get(url)
-              .end((e,r) => cb(e, !e && r && {
-                  url,
-                  payload: r.body,
-                  contentType: r.headers['content-type'],
-                  contentLength: r.body.length
-                })
-              );
+              .end((e,r) => e ? cb(new Error(`Unable to download ${url} media: ${e.message}`)) : cb(null, {
+                url,
+                payload: r.body,
+                contentType: r.headers['content-type'],
+                contentLength: r.body.length
+              }));
           }
           
           function initUpload(media, cb) {
@@ -125,8 +135,11 @@ function processSchedule(context, cb) {
               total_bytes: media.contentLength,
               media_type : media.contentType,
             }, (e, data) => {
-              if (!e && data) media.mediaId = data.media_id_string;
-              return cb(e, media);
+              if (e) {
+                return cb(new Error(`Unable to initialize upload of ${m} media to Twitter: ${e.message}`));
+              }
+              media.mediaId = data.media_id_string;
+              return cb(null, media);
             });
           }
 
@@ -138,7 +151,7 @@ function processSchedule(context, cb) {
               segment_index: 0
             }, e => {
               delete media.payload;
-              cb(e, media);
+              return e ? cb(new Error(`Unable to upload ${m} media to Twitter: ${e.message}`)) : cb(null, media);
             });
           }
           
@@ -146,12 +159,13 @@ function processSchedule(context, cb) {
             twitter.post('media/upload', {
               command : 'FINALIZE',
               media_id : media.mediaId
-            }, e => cb(e, media));
+            }, e => e ? cb(new Error(`Unable to finalize upload of ${m} media to Twitter: ${e.message}`)) : cb(null, media));
           }
         }, cb);
       }
       
       function postStatus(media, i, cb) {
+return cb(null, tx);
         var payload = {
           status: i.text
         };
@@ -159,22 +173,11 @@ function processSchedule(context, cb) {
           i.media = media;
           payload.media_ids = media.map(m => m.mediaId).join(',');
         }
-        twitter.post('statuses/update', payload, (e, tweet) => {
-          i.result = e 
-            ? { error: e.message || e.toString() } 
-            : { 
-              success: true, 
-              tweet_id: tweet.id_str, 
-              url: `https://twitter.com/${tweet.user && tweet.user.screen_name}/status/${tweet.id_str}`,
-              time: now_str,
-            };
-          tx.history.recentTweets.unshift(i);
-          return cb();
-        });
+        return twitter.post('statuses/update', payload, (e, tweet) => e ? cb(new Error(`Error posting to Twitter: ${e.message}`)) : cb(null, tweet));
       }
     }, e => cb(e, tx));
   }
-};
+}
 
 function createTweetPlan(history, schedule, cb) {
   history = history || {};
