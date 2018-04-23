@@ -165,7 +165,6 @@ function processSchedule(context, cb) {
       }
       
       function postStatus(media, i, cb) {
-return cb(null, tx);
         var payload = {
           status: i.text
         };
