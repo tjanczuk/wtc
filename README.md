@@ -346,9 +346,9 @@ This will open the Webtask Editor allowing you to modify the schedule:
 
 ## Embeddable NPS widget
 
-This compiler enables you to create an embeddable HTML widget, complete with a backend, storage, and simple reporting, for tracking a single Net Promoter Score (NPS) question. It can be embedded in your website, blog, or single page app. 
+This compiler enables you to create an embeddable HTML widget, complete with a backend, storage, and simple reporting, for tracking a single [Net Promoter Score (NPS)](https://en.wikipedia.org/wiki/Net_Promoter) question. It can be embedded in your website, blog, or single page app. 
 
-Start off simple by creating a webtask using this compliler:
+Start off simple by creating a webtask using the [nps_compiler.js](https://github.com/tjanczuk/wtc/blob/master/nps_compiler.js):
 
 ```bash
 wt create -n nps \
@@ -360,19 +360,19 @@ EOF
 
 A single webtask represents a distinct NPS poll - it maintains its own set of results. If you want to run multiple NPS polls, create a separate webtask for each. 
 
-The only parameter that must be provided at creation time is *SCALE*. It controls the upper bound of the rating end users can provide (starting from 0), and is 10 by default, following NPS methodology. You can set it arbitrary other value (e.g. 5) if you want to use the widget in contexts outside of NPS, e.g. a 5-star product rating. 
+The only parameter that must be provided at creation time is *SCALE*. It controls the upper bound of the rating the users can provide (starting from 0), and is 10 by default, following NPS methodology. You can set it to an arbitrary other value (e.g. 5) if you want to use the widget in contexts outside of NPS, e.g. a 5-star product rating. 
 
 Once the webtask is created, you can navigate to it in the browser to test it:
 
 ![image](https://user-images.githubusercontent.com/822369/44885448-bacdca00-ac75-11e8-8c9c-b53ad3ffc69e.png)
 
-Clicking on a particular star rating registers the answer on the backend using [webtask storage](). HTTP cookies are used to correlate and retrieve your answer next time you visit the widget, so that one end user will normally be only able to provide a single answer, which can be changed on a subsequent visit. This is of course not bullet-proof if the cookie is manually removed or a private browser session is used. But it may be good enough for what you want to do. 
+Clicking on a particular star rating registers the answer on the backend using [webtask storage](https://webtask.io/docs/storage). HTTP cookies are used to correlate and retrieve your answer next time you visit the widget, so that one end user will normally be only able to provide a single answer, which can be changed on a subsequent visit. This is of course not bullet-proof if the cookie is manually removed or a private browser session is used. But it may be good enough for what you want to do. 
 
 To embed the widget on your site, use an *iframe*: 
 
 ```html
 <p>How likely are you to recommend webtask.io to your friend or colleague?</p>
-<p><<iframe src="{webtask_url}" style="border: 0; height: 1em; width: 11em;"></iframe></p>
+<p><iframe src="{webtask_url}" style="border: 0; height: 1em; width: 11em;"></iframe></p>
 ```
 
 Finally, to obtain the results of the NPS pool, navigate to *{webtask_url}/stats* endpoint, which will serve the stats in JSON:
