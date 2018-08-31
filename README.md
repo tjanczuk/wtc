@@ -11,6 +11,7 @@ All you need to use the features below is [the webtask CLI](https://webtask.io/c
 [Stripe webhook](#stripe-webhook)  
 [Sequence diagram](#sequence-diagram)  
 [Twitter scheduler](#twitter-scheduler)  
+[Embeddable NPS widget](#embeddable-nps-widget)  
 
 ## Static compiler
 
@@ -342,4 +343,53 @@ wt edit buffer
 This will open the Webtask Editor allowing you to modify the schedule:
 
 ![image](https://user-images.githubusercontent.com/822369/38399064-e2e9eee8-38fc-11e8-9e17-7c03dd736e9c.png)
+
+## Embeddable NPS widget
+
+This compiler enables you to create an embeddable HTML widget, complete with a backend, storage, and simple reporting, for tracking a single Net Promoter Score (NPS) question. It can be embedded in your website, blog, or single page app. 
+
+Start off simple by creating a webtask using this compliler:
+
+```bash
+wt create -n nps \
+  -d webtask-compiler \
+  --meta wt-compiler=webtask-compiler/nps \
+  -s SCALE=10 <<EOF
+EOF
+```
+
+A single webtask represents a distinct NPS poll - it maintains its own set of results. If you want to run multiple NPS polls, create a separate webtask for each. 
+
+The only parameter that must be provided at creation time is *SCALE*. It controls the upper bound of the rating end users can provide (starting from 0), and is 10 by default, following NPS methodology. You can set it arbitrary other value (e.g. 5) if you want to use the widget in contexts outside of NPS, e.g. a 5-star product rating. 
+
+Once the webtask is created, you can navigate to it in the browser to test it:
+
+![image](https://user-images.githubusercontent.com/822369/44885448-bacdca00-ac75-11e8-8c9c-b53ad3ffc69e.png)
+
+Clicking on a particular star rating registers the answer on the backend using [webtask storage](). HTTP cookies are used to correlate and retrieve your answer next time you visit the widget, so that one end user will normally be only able to provide a single answer, which can be changed on a subsequent visit. This is of course not bullet-proof if the cookie is manually removed or a private browser session is used. But it may be good enough for what you want to do. 
+
+To embed the widget on your site, use an *iframe*: 
+
+```html
+<p>How likely are you to recommend webtask.io to your friend or colleague?</p>
+<p><<iframe src="{webtask_url}" style="border: 0; height: 1em; width: 11em;"></iframe></p>
+```
+
+Finally, to obtain the results of the NPS pool, navigate to *{webtask_url}/stats* endpoint, which will serve the stats in JSON:
+
+![image](https://user-images.githubusercontent.com/822369/44885671-06cd3e80-ac77-11e8-833e-74c203c87b79.png)
+
+### UI customization
+
+You can control a few aspects of how the widget displays the rating with URL query parameters passed to the webtask URL:
+
+* **color** controls the color of the widget, e.g. *blue*. Default *orange*.  
+* **size** controls the font size, e.g. *2em*. Default *1em*.  
+* **filledSymbol** Unicode symbol representing the "positive" rating. Default *&#x2605* (filled star).  
+* **emptySymbol** Unicode symbol representing the "negative" rating. Default *&#x2606* (empty star).  
+
+For example:
+
+![image](https://user-images.githubusercontent.com/822369/44885819-d20db700-ac77-11e8-99ab-bd30fe6deb54.png)
+
 
